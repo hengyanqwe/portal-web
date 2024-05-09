@@ -9,9 +9,6 @@ npm i
 // 开启 development 模式
 npm start
 
-// 开启 production 模式
-npm run buildPreview
-
 // 编译发布
 npm run build
 
