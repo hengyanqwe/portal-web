@@ -1,0 +1,49 @@
+default:
+  image: $DOCKER_REGISTRY/library/docker:20.10.12-ssh
+
+cache: 
+  paths:
+    - node_modules
+    - dist
+
+stages:
+  - build
+  - image
+
+build-job:
+  stage: build
+  image: $DOCKER_REGISTRY/library/node:20.11.0-slim-cert
+  script:
+    - echo '安装依赖'
+    - npm cache clean --force
+    - npm install --registry=$NPM_REGISTRY
+
+    - echo '开始构建'
+    - npm run build
+  tags:
+    - docker
+
+package-job:
+  stage: image
+  services:
+    - name: $DOCKER_REGISTRY/library/docker:20.10.12-dind-cert
+      alias: docker
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+    IMAGE_NAME: $DOCKER_REGISTRY/portal/$CI_PROJECT_NAME
+  before_script:
+    - export IMAGE_TAG=`date "+%-y.%-m.%-d_%H%M%S"`
+  script:
+    - echo '构建镜像'
+    - docker build -t $IMAGE_NAME:$IMAGE_TAG .
+
+    - echo '推送镜像'
+    - mkdir -p $HOME/.docker
+    - echo $DOCKER_AUTH > $HOME/.docker/config.json
+    - docker push $IMAGE_NAME:$IMAGE_TAG
+
+  tags:
+    - docker
+  only:
+    - main
+    
