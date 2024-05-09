@@ -7,7 +7,7 @@ import {ConfigProvider} from "antd";
 import zhCN from "antd/locale/zh_CN";
 import 'dayjs/locale/zh-cn'
 import {BrowserRouter, useLocation, useNavigate, useRoutes,} from "react-router-dom";
-import routesConfig from "./routes";
+import routesConfig, {normalRoutes} from "./routes";
 
 function Routes() {
     function getRoutes(routes){
@@ -25,6 +25,7 @@ function Routes() {
     }
     const routes = getRoutes(routesConfig);
     const element=useRoutes(routes);
+    //const element=useRoutes(normalRoutes);
     return <div>{element}</div>;
 }
 
